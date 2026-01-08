@@ -4,7 +4,6 @@ import XLSX from "xlsx";
 /**
  * Reads an XLSX file and converts a specific sheet into a structured JSON object.
  */
-// Changed to async arrow function
 const spreadsheetToJson = async (xlsxPath, sheetNameArg) => {
   if (!fs.existsSync(xlsxPath)) {
     throw new Error(`File not found: ${xlsxPath}`);

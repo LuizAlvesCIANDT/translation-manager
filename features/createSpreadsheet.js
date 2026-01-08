@@ -1,15 +1,9 @@
-/**
- * @file This module provides a function to create and write an XLSX spreadsheet
- * file from a 2D data array.
- */
-
 import XLSX from "xlsx";
 
 /**
  * Creates and writes an XLSX spreadsheet file from a 2D data array.
  * @param {object} options - The options for creating the spreadsheet.
  */
-
 const createSpreadsheet = ({
   sheetData,
   outputPath,
