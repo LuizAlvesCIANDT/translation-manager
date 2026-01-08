@@ -1,0 +1,56 @@
+# Classic .gitignore file
+
+# User-specified output process folder
+output/
+process/
+
+### Dependencies ###
+# Ignore package manager dependencies (npm, Composer, etc.)
+node_modules/
+
+### Build & Compilation ###
+# Build and distribution folders
+build/
+dist/
+bin/
+.out/
+
+# Generated log files
+*.log
+npm-debug.log*
+yarn-error.log
+
+### Environment & Secret Files ###
+# NEVER commit these files as they contain sensitive information.
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# Visual Studio Code
+.vscode/*
+# Uncomment the line below if you want to share debug and task settings
+#!.vscode/launch.json
+#!.vscode/tasks.json
+
+### Operating System Files ###
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+
+### Cache & Temporary Files ###
+.cache/
+tmp/
+*.tmp
+*.swp
+*.swo
+
+### Compressed Files ###
+# Ignore compressed files that are usually builds or backups
+*.zip
+*.rar
+*.tar.gz
