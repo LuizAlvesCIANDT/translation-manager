@@ -9,7 +9,7 @@ import XLSX from "xlsx";
  * Creates and writes an XLSX spreadsheet file from a 2D data array.
  * @param {object} options - The options for creating the spreadsheet.
  */
-// Changed to arrow function
+
 const createSpreadsheet = ({
   sheetData,
   outputPath,

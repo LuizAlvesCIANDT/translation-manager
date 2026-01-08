@@ -11,7 +11,7 @@ const __dirname = dirname(__filename);
 /**
  * Prints the help message for the command-line tool.
  */
-// Changed to arrow function
+
 const printHelp = () => {
   console.log("\n📖 Translation Manager - Help");
   console.log("---------------------------------");
@@ -38,7 +38,7 @@ const args = process.argv.slice(3);
  * Executes a sub-script as a child process.
  * @param {string} scriptName The name of the script file to run.
  */
-// Changed to arrow function
+
 const runScript = (scriptName) => {
   const scriptPath = path.join(__dirname, scriptName);
   // The callback here is also an arrow function

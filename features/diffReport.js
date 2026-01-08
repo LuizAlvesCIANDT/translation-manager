@@ -19,7 +19,7 @@ const flattenObject = (obj, prefix = "") =>
 /**
  * Compares two objects and generates a report of added, removed, and changed items.
  */
-// Changed to arrow function
+
 const createDiffReport = (oldData, newData) => {
   const flatOld = flattenObject(oldData);
   const flatNew = flattenObject(newData);
