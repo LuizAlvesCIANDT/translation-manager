@@ -1,0 +1,24 @@
+{
+  "name": "translation-manager",
+  "version": "1.0.0",
+  "description": "A command-line tool to import and export translations between JSON and XLSX formats.",
+  "main": "index.js",
+  "type": "module",
+  
+  "scripts": {
+    "export": "node index.js export",
+    "import": "node index.js import",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "i18n",
+    "translation",
+    "xlsx",
+    "json"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

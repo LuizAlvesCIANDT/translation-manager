@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <title>Translation Difference Report</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --fg: #111111;
+        --muted: #666666;
+        --border: #e0e3e7;
+        --chip-bg: #f1f3f4;
+        --added: #0a7f0a;
+        --added-bg: #e6f4e6;
+        --removed: #b00020;
+        --removed-bg: #fbe9e7;
+        --changed: #1a73e8;
+        --changed-bg: #e8f0fe;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #121212;
+          --fg: #e9eaee;
+          --muted: #999;
+          --border: #3c4043;
+          --chip-bg: #202124;
+          --added: #81c995;
+          --added-bg: #1e3a26;
+          --removed: #f28b82;
+          --removed-bg: #442f2f;
+          --changed: #8ab4f8;
+          --changed-bg: #283549;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0 auto;
+        max-width: 1200px;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.5;
+      }
+      h1 {
+        margin: 0 0 8px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .header {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 20px;
+      }
+      .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 16px 0 24px;
+      }
+      input[type="search"],
+      input[type="url"] {
+        flex: 1 1 260px;
+        min-width: 240px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--fg);
+        font-size: 14px;
+      }
+      input[type="file"] {
+        max-width: 220px;
+        font-size: 13px;
+        color: var(--muted);
+        align-self: center;
+      }
+      button {
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--chip-bg);
+        color: var(--fg);
+        cursor: pointer;
+        font-weight: 500;
+      }
+      button:hover {
+        background-color: var(--border);
+      }
+      .chips {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--chip-bg);
+        border: 1px solid var(--border);
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 14px;
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .dot.added {
+        background: var(--added);
+      }
+      .dot.removed {
+        background: var(--removed);
+      }
+      .dot.changed {
+        background: var(--changed);
+      }
+      details {
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        margin: 16px 0;
+        overflow: hidden;
+        transition: background-color 0.2s;
+      }
+      summary {
+        padding: 12px 16px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--chip-bg);
+        font-weight: 600;
+      }
+      .count {
+        color: var(--muted);
+        font-weight: normal;
+      }
+      .section {
+        padding: 16px;
+      }
+      .list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+      .item {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .key {
+        font-family: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 13.5px;
+        word-break: break-all;
+        padding: 10px 12px;
+        background: var(--chip-bg);
+        border-bottom: 1px solid var(--border);
+      }
+      .kv-container {
+        padding: 12px;
+        display: grid;
+        gap: 10px;
+      }
+      .kv {
+        display: grid;
+        gap: 4px;
+      }
+      .label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--muted);
+        font-weight: 600;
+      }
+      .val {
+        font-family: ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+        white-space: pre-wrap;
+        word-break: break-word;
+        padding: 8px;
+        border-radius: 6px;
+        font-size: 13.5px;
+      }
+      .val-added {
+        background: var(--added-bg);
+      }
+      .val-removed {
+        background: var(--removed-bg);
+      }
+      .val-changed .old {
+        background: var(--removed-bg);
+      }
+      .val-changed .new {
+        background: var(--changed-bg);
+      }
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      @media (min-width: 768px) {
+        .grid-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+      @media (min-width: 900px) {
+        .list {
+          grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        }
+      }
+      .badge {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 6px;
+        display: inline-block;
+        font-weight: 600;
+      }
+      .badge.added {
+        background: var(--added-bg);
+        color: var(--added);
+      }
+      .badge.removed {
+        background: var(--removed-bg);
+        color: var(--removed);
+      }
+      .badge.changed {
+        background: var(--changed-bg);
+        color: var(--changed);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div>
+        <h1>Translation Difference Report</h1>
+        <div class="muted" id="meta">
+          Load a JSON file or provide a URL to get started.
+        </div>
+      </div>
+      <div class="chips">
+        <span class="chip"
+          ><span class="dot added"></span> Added (Total):
+          <strong id="addedCount">0</strong></span
+        >
+        <span class="chip"
+          ><span class="dot removed"></span> Removed (Total):
+          <strong id="removedCount">0</strong></span
+        >
+        <span class="chip"
+          ><span class="dot changed"></span> Changed (Total):
+          <strong id="changedCount">0</strong></span
+        >
+      </div>
+    </div>
+
+    <div class="controls">
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Filter by key or value..."
+        title="Filters all sections simultaneously"
+      />
+      <button id="clearBtn">Clear</button>
+      <input
+        id="fileInput"
+        type="file"
+        accept="application/json,.json"
+        title="Load local file"
+      />
+      <input id="urlInput" type="url" placeholder="JSON URL..." />
+      <button id="fetchBtn">Load URL</button>
+      <button id="expandBtn" title="Expand all sections">Expand All</button>
+      <button id="collapseBtn" title="Collapse all sections">
+        Collapse All
+      </button>
+    </div>
+
+    <details id="addedPanel" open>
+      <summary>
+        <div><span class="badge added">NEW</span> Items Added</div>
+        <div class="count" id="addedSummary">0 items</div>
+      </summary>
+      <div class="section"><ul class="list" id="addedList"></ul></div>
+    </details>
+
+    <details id="removedPanel">
+      <summary>
+        <div><span class="badge removed">REMOVED</span> Items Removed</div>
+        <div class="count" id="removedSummary">0 items</div>
+      </summary>
+      <div class="section"><ul class="list" id="removedList"></ul></div>
+    </details>
+
+    <details id="changedPanel">
+      <summary>
+        <div><span class="badge changed">CHANGED</span> Items Changed</div>
+        <div class="count" id="changedSummary">0 items</div>
+      </summary>
+      <div class="section"><ul class="list" id="changedList"></ul></div>
+    </details>
+
+    <div class="footer muted">
+      Tip: Place a "data.json" file next to this HTML file to load it
+      automatically on startup (if allowed by the browser).
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const els = {
+          meta: document.getElementById("meta"),
+          search: document.getElementById("searchInput"),
+          clearBtn: document.getElementById("clearBtn"),
+          fileInput: document.getElementById("fileInput"),
+          urlInput: document.getElementById("urlInput"),
+          fetchBtn: document.getElementById("fetchBtn"),
+          expandBtn: document.getElementById("expandBtn"),
+          collapseBtn: document.getElementById("collapseBtn"),
+          addedCount: document.getElementById("addedCount"),
+          removedCount: document.getElementById("removedCount"),
+          changedCount: document.getElementById("changedCount"),
+          addedSummary: document.getElementById("addedSummary"),
+          removedSummary: document.getElementById("removedSummary"),
+          changedSummary: document.getElementById("changedSummary"),
+          addedList: document.getElementById("addedList"),
+          removedList: document.getElementById("removedList"),
+          changedList: document.getElementById("changedList"),
+        };
+
+        let state = { added: [], removed: [], changed: [] };
+        let filteredState = { added: [], removed: [], changed: [] };
+        let filterText = "";
+
+        function normalizeData(json) {
+          const added = Object.entries(json?.dictionary_item_added || {});
+          const removed = Object.entries(json?.dictionary_item_removed || {});
+          const changed = Object.entries(json?.values_changed || {});
+          return { added, removed, changed };
+        }
+
+        function updateCounts() {
+          els.addedCount.textContent = state.added.length;
+          els.removedCount.textContent = state.removed.length;
+          els.changedCount.textContent = state.changed.length;
+
+          const formatSummary = (filtered, total) => {
+            const totalStr = `item${total.length !== 1 ? "s" : ""}`;
+            if (filterText) {
+              return `${filtered.length} of ${total.length} ${totalStr}`;
+            }
+            return `${total.length} ${totalStr}`;
+          };
+
+          els.addedSummary.textContent = formatSummary(
+            filteredState.added,
+            state.added
+          );
+          els.removedSummary.textContent = formatSummary(
+            filteredState.removed,
+            state.removed
+          );
+          els.changedSummary.textContent = formatSummary(
+            filteredState.changed,
+            state.changed
+          );
+        }
+
+        function matchesFilter(key, val) {
+          if (!filterText) return true;
+          const t = filterText.toLowerCase();
+          const k = String(key).toLowerCase();
+          const v =
+            val == null
+              ? ""
+              : (typeof val === "object"
+                  ? JSON.stringify(val)
+                  : String(val)
+                ).toLowerCase();
+          return k.includes(t) || v.includes(t);
+        }
+
+        function filterData() {
+          if (!filterText) {
+            filteredState = {
+              added: [...state.added],
+              removed: [...state.removed],
+              changed: [...state.changed],
+            };
+          } else {
+            filteredState.added = state.added.filter(([key, val]) =>
+              matchesFilter(key, val)
+            );
+            filteredState.removed = state.removed.filter(([key, val]) =>
+              matchesFilter(key, val)
+            );
+            filteredState.changed = state.changed.filter(([key, val]) =>
+              matchesFilter(key, val)
+            );
+          }
+        }
+
+        function escapeHTML(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
+        }
+
+        const renderFn = {
+          added: ([key, val]) => {
+            const li = document.createElement("li");
+            li.className = "item";
+            li.innerHTML = `
+            <div class="key">${escapeHTML(key)}</div>
+            <div class="kv-container">
+              <div class="kv">
+                <div class="label">Added Value</div>
+                <div class="val val-added">${escapeHTML(val)}</div>
+              </div>
+            </div>`;
+            return li;
+          },
+          removed: ([key, val]) => {
+            const li = document.createElement("li");
+            li.className = "item";
+            li.innerHTML = `
+            <div class="key">${escapeHTML(key)}</div>
+            <div class="kv-container">
+              <div class="kv">
+                <div class="label">Removed Value</div>
+                <div class="val val-removed">${escapeHTML(val)}</div>
+              </div>
+            </div>`;
+            return li;
+          },
+          changed: ([key, { old_value, new_value }]) => {
+            const li = document.createElement("li");
+            li.className = "item";
+            li.innerHTML = `
+            <div class="key">${escapeHTML(key)}</div>
+            <div class="kv-container grid-2 val-changed">
+              <div class="kv">
+                <div class="label">Old Value</div>
+                <div class="val old">${escapeHTML(old_value)}</div>
+              </div>
+              <div class="kv">
+                <div class="label">New Value</div>
+                <div class="val new">${escapeHTML(new_value)}</div>
+              </div>
+            </div>`;
+            return li;
+          },
+        };
+
+        function renderLists() {
+          const createList = (data, renderer) => {
+            const frag = document.createDocumentFragment();
+            data.forEach((item) => frag.appendChild(renderer(item)));
+            return frag;
+          };
+
+          els.addedList.innerHTML = "";
+          els.removedList.innerHTML = "";
+          els.changedList.innerHTML = "";
+
+          els.addedList.appendChild(
+            createList(filteredState.added, renderFn.added)
+          );
+          els.removedList.appendChild(
+            createList(filteredState.removed, renderFn.removed)
+          );
+          els.changedList.appendChild(
+            createList(filteredState.changed, renderFn.changed)
+          );
+        }
+
+        function updateUI() {
+          filterData();
+          updateCounts();
+          renderLists();
+        }
+
+        function processData(json, sourceInfo) {
+          try {
+            state = normalizeData(json);
+            filterText = els.search.value;
+            els.meta.textContent = `${sourceInfo} • ${new Date().toLocaleString()}`;
+            updateUI();
+          } catch (err) {
+            console.error(err);
+            els.meta.textContent = `Error processing data: ${err.message}`;
+          }
+        }
+
+        async function loadFromURL(url) {
+          if (!url) return;
+          els.meta.textContent = `Loading from ${url}...`;
+          try {
+            const res = await fetch(url, { cache: "no-store" });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const json = await res.json();
+            processData(json, `Source: ${url}`);
+          } catch (err) {
+            console.error(err);
+            els.meta.textContent = `Failed to load URL: ${err.message}`;
+          }
+        }
+
+        function loadFromFile(file) {
+          if (!file) return;
+          els.meta.textContent = `Reading file: ${file.name}...`;
+          const reader = new FileReader();
+          reader.onload = (e) =>
+            processData(
+              JSON.parse(e.target.result),
+              `Source: local file (${file.name})`
+            );
+          reader.onerror = (e) => {
+            console.error("FileReader error", e);
+            els.meta.textContent = "Error reading the file.";
+          };
+          reader.readAsText(file, "utf-8");
+        }
+
+        // --- Event Listeners ---
+        els.search.addEventListener("input", (e) => {
+          filterText = e.target.value;
+          updateUI();
+        });
+
+        els.clearBtn.addEventListener("click", () => {
+          els.search.value = "";
+          filterText = "";
+          updateUI();
+        });
+
+        els.fileInput.addEventListener("change", (e) =>
+          loadFromFile(e.target.files[0])
+        );
+
+        els.fetchBtn.addEventListener("click", () =>
+          loadFromURL(els.urlInput.value.trim())
+        );
+
+        els.expandBtn.addEventListener("click", () =>
+          document.querySelectorAll("details").forEach((d) => (d.open = true))
+        );
+
+        els.collapseBtn.addEventListener("click", () =>
+          document.querySelectorAll("details").forEach((d) => (d.open = false))
+        );
+
+        // Attempt to load 'data.json' automatically on startup
+        loadFromURL("data.json").catch((err) => {
+          console.warn(
+            "Could not load 'data.json' automatically.",
+            err.message
+          );
+        });
+      });
+    </script>
+  </body>
+</html>
