@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import { spawn } from "child_process";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
@@ -11,7 +9,6 @@ const __dirname = dirname(__filename);
 /**
  * Prints the help message for the command-line tool.
  */
-
 const printHelp = () => {
   console.log("\n📖 Translation Manager - Help");
   console.log("---------------------------------");

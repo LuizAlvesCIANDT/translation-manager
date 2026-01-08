@@ -1,15 +1,10 @@
-#!/usr/bin/env node
-
-// Changed from require
 import fs from "fs/promises";
 import path from "path";
 
-// Changed from require. IMPORTANT: Added .js extension
 import { convertJsonToSheetData } from "./features/convertJsonToSheetData.js";
 import { createSpreadsheet } from "./features/createSpreadsheet.js";
 import { sortTranslationsObject } from "./features/sort.js";
 
-// With ES Modules, we can use top-level await, simplifying the main() wrapper.
 try {
   const [, , inputJsonPath, outputXlsxPath = "output/output.xlsx"] = process.argv;
 
